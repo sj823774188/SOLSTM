@@ -1,0 +1,4 @@
+程序说明
+1.CASE1_SOLSTM.m是预测主程序。
+2.LSTM_updata_weight_bias.m是LSTM网络参数更新程序。
+3.LSTM_H是神经元输出计算程序。

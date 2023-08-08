@@ -1,0 +1,49 @@
+function ym_dataone=LSTM_H(dataNum,data_in,weight_input_x,...
+                weight_input_h,...
+                weight_inputgate_x,...
+                weight_inputgate_c,...
+                weight_forgetgate_x,...
+                weight_forgetgate_c,...
+                weight_outputgate_x,...
+                weight_outputgate_c,...
+                bias_gate,...
+                bias_input_gate,...
+                bias_forget_gate,...
+                bias_output_gate,...
+                cell_state,...
+                input_gate,forget_gate,...
+                output_gate,...
+                pre_h_state,cell_num,weight_preh_h,MASK)
+            for j=1:size(data_in,2)
+                test_final=data_in;
+                 m=dataNum+j;
+gate=tanh(test_final'*weight_input_x.*MASK+pre_h_state(:,m-1)'*(weight_input_h.*MASK.*MASK')+bias_gate.*MASK);
+input_gate_input=test_final'*weight_inputgate_x.*MASK+pre_h_state(:,m-1)'*(weight_inputgate_c.*MASK.*MASK')+bias_input_gate.*MASK;
+forget_gate_input=test_final'*weight_forgetgate_x.*MASK+pre_h_state(:,m-1)'*(weight_forgetgate_c.*MASK.*MASK')+bias_forget_gate.*MASK;
+output_gate_input=test_final'*weight_outputgate_x.*MASK+pre_h_state(:,m-1)'*(weight_outputgate_c.*MASK.*MASK')+bias_output_gate.*MASK;
+for n=1:cell_num
+    input_gate(1,n)=1/(1+exp(-input_gate_input(1,n)));
+    forget_gate(1,n)=1/(1+exp(-forget_gate_input(1,n)));
+    output_gate(1,n)=1/(1+exp(-output_gate_input(1,n)));
+end
+cell_state(:,m)=(input_gate.*gate+cell_state(:,m-1)'.*forget_gate)';
+        pre_h_state(:,m)=tanh(cell_state(:,m)').*output_gate;
+        ym= pre_h_state(:,m)'*(weight_preh_h.*MASK');
+       ym_dataone =  pre_h_state(:,m).*MASK';
+%                 %Ç°À¡
+%                 m=dataNum+j;
+%                 gate=tanh(data_in'*weight_input_x+pre_h_state(:,m-1)'*weight_input_h+bias_gate);
+%                 input_gate_input=data_in'*weight_inputgate_x+pre_h_state(:,m-1)'*weight_inputgate_c+bias_input_gate;
+%                 forget_gate_input=data_in'*weight_forgetgate_x+pre_h_state(:,m-1)'*weight_forgetgate_c+bias_forget_gate;
+%                 output_gate_input=data_in'*weight_outputgate_x+pre_h_state(:,m-1)'*weight_outputgate_c+bias_output_gate;
+%                 for n=1:cell_num
+%                     input_gate(1,n)=1/(1+exp(-input_gate_input(1,n)));
+%                     forget_gate(1,n)=1/(1+exp(-forget_gate_input(1,n)));
+%                     output_gate(1,n)=1/(1+exp(-output_gate_input(1,n)));
+%                 end
+% cell_state(:,m)=(input_gate.*gate+cell_state(:,m-1)'.*forget_gate)';
+%         pre_h_state_dataone=tanh(cell_state(:,m)').*output_gate;
+%         ym_dataone= pre_h_state_dataone'.*weight_preh_h;
+
+%         ym=1/(1+exp(-ym_input));
+end
